@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+</head>
+<body>
+    <h1><%= title %></h1>
+    <p>请选择音频文件上传 <%= title %></p>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+	    <input type="file" name="file" multiple>
+	    <input type="submit" value="上传">
+	  </form>
+    <script>
+  //   	$("#choose").on('change', function(){         
+		// 	console.log('change') 
+
+  //           $.ajax({
+  //                url: "http://localhost:3000/upload",
+  //                type: "POST",
+  //                processData: false,
+  //                contentType: false,
+  //                data: {"upfile":$("#choose").get(0).files[0]},
+  //                success: function(data) {
+  //                   console.log(data);
+  //                }
+  //           })  
+		// });
+    </script>
+</body>
+</html>
