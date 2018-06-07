@@ -18,18 +18,16 @@ app.use(static(path.join(__dirname,'./static')));
 
 
 const main = async(ctx) => {
-  let title = '语音识别';
+  let title = '接口调试';
   await ctx.render('user',{title});
-
-   //ctx.response.body = '<a href="/">Index Page</a>';
-
 };
- 
+
 async function saveFile(file){
   
   //获取文件后缀名
   var fileName = (file.name).split("."); 
   fileFormat = fileName[fileName.length-1];
+
   //创建可读流
   const reader = fs.createReadStream(file.path);
   //创建可写流，存储在uploads文件夹下
@@ -102,7 +100,7 @@ function recognition(path){
 };
     
 //语音识别post识别
-const upload = async(ctx,next) => {
+const speechRecognition = async(ctx,next) => {
   let result = {};
   const file = ctx.request.body.files.file;
   //保存在本地
@@ -121,10 +119,74 @@ const upload = async(ctx,next) => {
   ctx.body= result
 };
 
+//人脸识别post
+const imageRecognition = async(ctx,next) => {
+  let result = {};
+  //获取表单提交的图片文件
+  const file = ctx.request.body.files.file;
+  
+  console.log("上传文件路径为："+file.path);
+  //将图片文件转换为base64格式
+  let base64Img = base64_encode(file.path);
 
+  //出入图片文件，调用人脸识别接口
+  await faceRecognition(base64Img)
+    .then(function(res){
+      console.log(res.status)
+      ctx.body = res
+      //console.log(res.text);
+     })
+};
 
+// 图片base64编码
+function base64_encode(path) {
+  console.log("图片开始base64转码！")
+  // read binary data
+  var bitmap = fs.readFileSync(path.toString());
+  console.log("图片base64转码成功！")
+  // convert binary data to base64 encoded string
+  return new Buffer(bitmap).toString('base64');
+}
+
+//语音识别函数，参数传入音频路径
+function faceRecognition(base64Img){
+
+  console.log("图片识别中")
+  
+  let url = 'https://api-cn.faceplusplus.com/facepp/v3/detect'
+  let key = 'Bk5wLdWj-t0rgoxp2fIDEN0WLRmLi1Yw'
+  let secret = 'YckFHP9dMkC93JEcidJ62IX4lMfOFIuj'
+  let picUrl =  'https://cdn.faceplusplus.com.cn/mc-official/scripts/demoScript/images/demo-pic1.jpg';
+
+  var data = {
+    api_key:key,
+    api_secret:secret,
+    image_base64:base64Img,
+    return_attributes:"emotion"
+  }
+  
+  return new Promise(function (resolve, reject) {  
+  request
+    .post(url)
+    .set('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8')
+    .send(data)
+    .then(function(res) {
+       console.log("图片识别成功！")
+       return resolve(res);
+        
+      })
+    .catch(function(err) {
+       console.log("图片识别失败！")
+       return reject(err);
+      })
+       
+  });
+};
+
+//image recognition
 app.use(route.get('/', main));
-app.use(route.post('/upload',upload));
+app.use(route.post('/api/speechRecognition',speechRecognition));
+app.use(route.post('/api/imageRecognition',imageRecognition));
 
 
 app.listen(3000);
