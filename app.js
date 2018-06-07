@@ -145,7 +145,7 @@ function base64_encode(path) {
   var bitmap = fs.readFileSync(path.toString());
   console.log("图片base64转码成功！")
   // convert binary data to base64 encoded string
-  return new Buffer(bitmap).toString('base64');
+  return new Buffer.alloc(bitmap).toString('base64');
 }
 
 //语音识别函数，参数传入音频路径
